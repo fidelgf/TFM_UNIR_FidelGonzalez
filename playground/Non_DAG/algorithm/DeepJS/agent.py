@@ -13,11 +13,11 @@ class Agent(object):
         self.reward_to_go = reward_to_go
         self.baseline = nn_baseline
         self.normalize_advantages = normalize_advantages
-        self.optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
-        self.global_step = tf.train.get_or_create_global_step()
+        self.optimizer = tf.optimizers.Adam(learning_rate=0.001)# tf.train.AdamOptimizer(learning_rate=0.001)
+        self.global_step = tf.compat.v1.train.get_or_create_global_step()#tf.train.get_or_create_global_step()
         self.summary_path = summary_path if summary_path is not None else './tensorboard/%s--%s' % (
             name, time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime()))
-        self.summary_writer = tf.contrib.summary.create_file_writer(self.summary_path)
+        #self.summary_writer = tf.contrib.summary.create_file_writer(self.summary_path)
 
         self.brain = brain
         self.checkpoint = tf.train.Checkpoint(brain=self.brain)
@@ -170,9 +170,10 @@ class Agent(object):
 
     def _loss(self, X, y, adv):
         logits = self.brain(X)
-        logprob = - tf.losses.sparse_softmax_cross_entropy(labels=y, logits=logits)
+        logprob = - tf.compat.v1.losses.sparse_softmax_cross_entropy(labels=y, logits=logits)
         return logprob * adv
-
+    
+    #@tf.function
     def update_parameters(self, all_observations, all_actions, all_advantages):
         """
             Update the parameters of the policy.
@@ -190,14 +191,38 @@ class Agent(object):
         for observations, actions, advantages in zip(all_observations, all_actions, all_advantages):
             grads_by_trajectory = []
             cnt = 1
+            #print("Primer check")
+            #print(np.shape(zip(all_observations, all_actions, all_advantages)))
+            #print(time.sleep(20))
+            #tic = time.time()
             for observation, action, advantage in zip(observations, actions, advantages):
+                #print("Segundo check")
+                #print(np.shape(zip(observations, actions, advantages)))
+                #print(time.sleep(20))
                 if observation is None or action is None:
                     continue
+                #print("1")
+                #if advantage is None:
+                #    print("2")
+                #    time.sleep(10)
+                #print("observation: {}, action: {}, advantage: {}".format(observation, action, advantage))
+                #tic2 = time.time()
                 with tf.GradientTape() as t:
                     loss_value = - self._loss(observation, [action], advantage)
+                #toc2 = time.time()
+                #print("time2")
+                #print(toc2 - tic2)
                 # assert loss_value.numpy() == 0
-
+                #print("loss value: {}".format(loss_value))
+                #print("brain variables: {}".format(self.brain.variables))
+                #print(cnt)
+                #tic3=time.time()
                 grads = t.gradient(loss_value, self.brain.variables)
+                #toc3=time.time()
+                #print("time3")
+                #print(toc3 - tic3)
+                #print(loss_value)
+                #print(self.brain.variables)
                 grads_by_trajectory.append(grads)
                 loss_values.append(loss_value)
                 advantages__.append(advantage)
@@ -209,7 +234,10 @@ class Agent(object):
                 cnt += 1
             if len(grads_by_trajectory) > 0:
                 self.optimize(grads_by_trajectory)
-
+            #toc = time.time()
+            #print("contador")
+            #print(cnt)
+            #print(toc-tic)
         self.log('loss', np.mean(loss_values), self.global_step)
         self.log('adv', np.mean(advantages__), self.global_step)
 
@@ -225,5 +253,7 @@ class Agent(object):
         self.optimizer.apply_gradients(zip(average_grads, self.brain.variables), self.global_step)
 
     def log(self, name, loss_value, step):
-        with self.summary_writer.as_default(), tf.contrib.summary.always_record_summaries():
-            tf.contrib.summary.scalar(name, loss_value, step=step)
+        #with self.summary_writer.as_default(), tf.contrib.summary.always_record_summaries():
+        #    tf.contrib.summary.scalar(name, loss_value, step=step)
+        pass
+

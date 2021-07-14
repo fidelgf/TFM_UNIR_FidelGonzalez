@@ -5,7 +5,7 @@ import tensorflow as tf
 import sys
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = '3'
-sys.path.append('..')
+sys.path.append('/home/pg1551610/CloudSimPy')
 
 from core.machine import MachineConfig
 from playground.DAG.algorithm.heuristics.random_algorithm import RandomAlgorithm
@@ -15,11 +15,11 @@ from playground.DAG.algorithm.heuristics.max_weight import MaxWeightAlgorithm
 
 from playground.DAG.algorithm.DeepJS.DRL import RLAlgorithm
 from playground.DAG.algorithm.DeepJS.agent import Agent
-from playground.DAG.algorithm.DeepJS.brain import BrainSmall
+from playground.DAG.algorithm.DeepJS.brain import BrainSmall, Brain
 from playground.DAG.algorithm.DeepJS.reward_giver import MakespanRewardGiver
 
 from playground.DAG.utils.csv_reader import CSVReader
-from playground.DAG.utils.feature_functions import features_extract_func_ac, features_normalize_func_ac
+from playground.DAG.utils.feature_functions import features_extract_func_ac, features_extract_func, features_normalize_func_ac, features_normalize_func
 from playground.auxiliary.tools import average_completion, average_slowdown
 from playground.DAG.adapter.episode import Episode
 
@@ -28,15 +28,16 @@ os.environ['CUDA_VISIBLE_DEVICES'] = ''
 np.random.seed(41)
 tf.random.set_random_seed(41)
 # ************************ Parameters Setting Start ************************
-machines_number = 1
-jobs_len = 1
+machines_number = 5
+jobs_len = 10
 n_iter = 30
 jobs_csv = '../jobs_files/job.csv'
 
-brain = BrainSmall(14)
+#brain = BrainSmall(14)
+brain = Brain(6)
 reward_giver = MakespanRewardGiver(-1)
-features_extract_func = features_extract_func_ac
-features_normalize_func = features_normalize_func_ac
+features_extract_func = features_extract_func
+features_normalize_func = features_normalize_func
 
 name = '%s-%s-m%d' % (reward_giver.name, brain.name, machines_number)
 model_dir = './agents/%s' % name
@@ -48,7 +49,7 @@ if not os.path.isdir(model_dir):
 agent = Agent(name, brain, 1, reward_to_go=True, nn_baseline=True, normalize_advantages=True,
               model_save_path='%s/model.ckpt' % model_dir)
 
-machine_configs = [MachineConfig(2, 1, 1) for i in range(machines_number)]
+machine_configs = [MachineConfig(64, 1, 1) for i in range(machines_number)]
 csv_reader = CSVReader(jobs_csv)
 jobs_configs = csv_reader.generate(0, jobs_len)
 
@@ -92,7 +93,7 @@ for itr in range(n_iter):
     trajectories = []
 
     tic = time.time()
-    for i in range(12):
+    for i in range(50):
         algorithm = RLAlgorithm(agent, reward_giver, features_extract_func=features_extract_func,
                                 features_normalize_func=features_normalize_func)
         episode = Episode(machine_configs, jobs_configs, algorithm, None)
@@ -109,7 +110,7 @@ for itr in range(n_iter):
 
     toc = time.time()
     print(np.mean(makespans), (toc - tic) / 12, np.mean(average_completions), np.mean(average_slowdowns))
-
+    print(makespans)
     for trajectory in trajectories:
         observations = []
         actions = []
@@ -122,6 +123,9 @@ for itr in range(n_iter):
         all_observations.append(observations)
         all_actions.append(actions)
         all_rewards.append(rewards)
+
+    get_rewards = [np.mean(i) for i in all_rewards]
+    print(get_rewards)
 
     all_q_s, all_advantages = agent.estimate_return(all_rewards)
     agent.update_parameters(all_observations, all_actions, all_advantages)

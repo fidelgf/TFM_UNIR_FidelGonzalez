@@ -52,7 +52,7 @@ class Brain(tf.keras.Model):
         #state = self.dense_4(state)
         #state = self.dense_5(state)
         return tf.expand_dims(tf.squeeze(state, axis=-1), axis=0)
-
+i
 
 class BrainSmall(tf.keras.Model):
     name = 'BrainSmall'

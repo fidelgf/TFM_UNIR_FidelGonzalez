@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
 
-tf.enable_eager_execution()
+#tf.enable_eager_execution()
 
 
 class Node(object):
@@ -43,7 +43,8 @@ class RLAlgorithm(object):
             features = self.extract_features(all_candidates)
             features = tf.convert_to_tensor(features, dtype=np.float32)
             logits = self.agent.brain(features)
-            pair_index = tf.squeeze(tf.multinomial(logits, num_samples=1), axis=1).numpy()[0]
+            #pair_index = tf.squeeze(tf.multinomial(logits, num_samples=1), axis=1).numpy()[0]
+            pair_index = tf.squeeze(tf.random.categorical(logits, num_samples=1), axis=1).numpy()[0]
 
             node = Node(features, pair_index, 0, clock)
             self.current_trajectory.append(node)

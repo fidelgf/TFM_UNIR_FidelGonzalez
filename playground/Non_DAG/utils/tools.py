@@ -25,7 +25,8 @@ def average_slowdown(exp):
 
 def multiprocessing_run(episode, trajectories, makespans, average_completions, average_slowdowns):
     np.random.seed(int(time.time()))
-    tf.random.set_random_seed(time.time())
+    #tf.random.set_random_seed(time.time())
+    tf.random.set_seed(time.time())
     episode.run()
     trajectories.append(episode.simulation.scheduler.algorithm.current_trajectory)
     makespans.append(episode.simulation.env.now)
