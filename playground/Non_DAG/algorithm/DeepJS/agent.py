@@ -240,6 +240,8 @@ class Agent(object):
             #print(toc-tic)
         self.log('loss', np.mean(loss_values), self.global_step)
         self.log('adv', np.mean(advantages__), self.global_step)
+        print("loss")
+        print(np.mean(loss_values))
 
     def optimize(self, grads_by_trajectory):
         average_grads = []

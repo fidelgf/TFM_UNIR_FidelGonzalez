@@ -107,7 +107,9 @@ for itr in range(n_iter):
     agent.log('average_completions', np.mean(average_completions), agent.global_step)
     agent.log('average_slowdowns', np.mean(average_slowdowns), agent.global_step)
 
+    print("makespans")
     print(makespans)
+    print(np.mean(makespans))
     #print(np.mean(makespans), intervalo, np.mean(average_completions), np.mean(average_slowdowns))
 
     all_observations = []
@@ -135,6 +137,7 @@ for itr in range(n_iter):
     get_rewards = [np.mean(i) for i in all_rewards]
     print("rewards")
     print(get_rewards)
+    print(np.mean(get_rewards))
     
     all_q_s, all_advantages = agent.estimate_return(all_rewards)
     #print("despues de estimate return")
