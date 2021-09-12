@@ -64,7 +64,7 @@ class BrainOneLayerLSTMActivationTanhFourLayersDenseActivationRelu(tf.keras.Mode
 
     def __init__(self, state_size):
         super().__init__()
-        self.dense_1 = tf.keras.layers.LSTM(3, input_shape=(state_size,1), , activation=tf.tanh)
+        self.dense_1 = tf.keras.layers.LSTM(3, input_shape=(state_size,1), activation=tf.tanh)
         self.dense_2 = tf.keras.layers.Dense(9, activation='relu')
         self.dense_3 = tf.keras.layers.Dense(18, activation='relu')
         self.dense_4 = tf.keras.layers.Dense(9, activation='relu')
