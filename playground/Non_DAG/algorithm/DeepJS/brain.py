@@ -26,9 +26,9 @@ class BrainFiveLayersDenseActivationRelu(tf.keras.Model):
     def __init__(self, state_size):
         super().__init__()
         self.dense_1 = tf.keras.layers.Dense(3, input_shape=(None, state_size), activation='relu')
-        self.dense_2 = tf.keras.layers.Dense(9, activation='tanh')
-        self.dense_3 = tf.keras.layers.Dense(18, activation='tanh')
-        self.dense_4 = tf.keras.layers.Dense(9, activation='tanh')
+        self.dense_2 = tf.keras.layers.Dense(9, activation='relu')
+        self.dense_3 = tf.keras.layers.Dense(18, activation='relu')
+        self.dense_4 = tf.keras.layers.Dense(9, activation='relu')
         self.dense_5 = tf.keras.layers.Dense(1)
 
     def call(self, state):
