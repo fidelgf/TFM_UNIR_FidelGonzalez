@@ -36,8 +36,6 @@ class BrainFiveLayersDenseActivationRelu(tf.keras.Model):
         state = self.dense_2(state)
         state = self.dense_3(state)
         state = self.dense_4(state)
-        state = np.reshape(state, (state.shape[0], state.shape[1], 1))
-        state = self.dense_1(state)
         state = self.dense_5(state)
         return tf.expand_dims(tf.squeeze(state, axis=-1), axis=0)
 
